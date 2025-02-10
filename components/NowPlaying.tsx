@@ -10,6 +10,7 @@ export interface Props {
   duration: number;
   isPlaying: boolean;
 }
+const defaultImg = 'https://raw.githubusercontent.com/LasithaPrabodha/now-playing-profile/master/assets/music.svg';
 
 export const Player: React.FC<Props> = ({ cover, track, artist, progress, duration, isPlaying }) => {
   return (
@@ -151,7 +152,7 @@ export const Player: React.FC<Props> = ({ cover, track, artist, progress, durati
           paddingLeft: 4,
         }}
       >
-        <img id="cover" src={cover ?? null} width="48" height="48" />
+        <img id="cover" src={cover ?? defaultImg} width="48" height="48" />
         <div
           style={{
             display: "flex",
