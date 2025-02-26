@@ -68,6 +68,9 @@ export const Player: React.FC<Props> = ({ cover, track, artist, progress, durati
               #progress {
                 background-color: #bdbddd;
               }
+              .progress-bar {
+                border: 1px solid #333333;
+              }
             }
             
             .progress-bar,
