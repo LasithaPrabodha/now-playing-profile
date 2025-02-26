@@ -13,7 +13,7 @@ export interface Props {
 
 export const Player: React.FC<Props> = ({ cover, track, artist, progress, duration, isPlaying }) => {
   return (
-    <ReadmeImg width="430" height="85">
+    <ReadmeImg width={artist ? 430: 360} height="85">
       <style>
         {`
             p{
@@ -63,6 +63,11 @@ export const Player: React.FC<Props> = ({ cover, track, artist, progress, durati
               background-color: #24292e;
               animation: progress ${duration}ms linear;
               animation-delay: -${progress}ms;
+            }
+            @media (prefers-color-scheme: dark) {
+              #progress {
+                background-color: #bdbddd;
+              }
             }
             
             .progress-bar,
