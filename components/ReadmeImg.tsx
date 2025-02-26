@@ -17,14 +17,12 @@ const ReadmeImg = ({ width, height, children }) => {
                 box-sizing: border-box;
               }
               :root {
-                color: rgb(36, 41, 46);
-                background: #FFF;
+                color: rgb(36, 41, 46); 
               }
 
               @media (prefers-color-scheme: dark) {
                 :root {
-                  color: rgb(201, 209, 217);
-                  background: rgb(13, 17, 23);
+                  color: rgb(201, 209, 217); 
                 }
 
                 p {
