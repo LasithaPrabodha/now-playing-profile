@@ -24,8 +24,7 @@ export default async function (req: VercelRequest, res: VercelResponse) {
   }
 
   res.setHeader("Content-Type", "image/svg+xml");
-  res.setHeader("Cache-Control", "s-maxage=1, stale-while-revalidate");
-
+  
   const { duration_ms: duration, name: track } = item;
   const { images = [] } = item.album || {};
 
