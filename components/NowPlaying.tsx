@@ -18,7 +18,6 @@ export const Player: React.FC<Props> = ({ cover, track, artist, progress, durati
         {`
             p{
               word-wrap: break-word;
-              word-wrap: break-word;
             }
             .paused { 
               animation-play-state: paused !important;

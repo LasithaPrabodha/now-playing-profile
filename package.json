@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "Github profile",
   "main": "index.js",
+  "scripts": {
+    "start": "sudo vercel dev"
+  },
   "dependencies": {
     "faunadb": "^2.14.2",
     "isomorphic-unfetch": "^3.1.0",
@@ -26,6 +29,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LasithaPrabodha/LasithaPrabodha.git"
+  },
+  "engines": {
+    "node": "24.x"
   },
   "keywords": [],
   "husky": {

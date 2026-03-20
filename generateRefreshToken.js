@@ -28,7 +28,7 @@ requiredConfigs.forEach((config) => {
 
   if (!envVar) {
     console.error(
-      `Missing config ${envVar}, set as environment variable or add to .env file.`
+      `Missing config ${config}, set as environment variable or add to .env file.`
     );
     process.exit(1);
   }
