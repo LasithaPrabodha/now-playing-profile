@@ -48,6 +48,25 @@ export async function nowPlaying(): Promise<Partial<SpotifyApi.CurrentlyPlayingR
   return {};
 }
 
+const RECENTLY_PLAYED_ENDPOINT = `/me/player/recently-played`;
+export async function recentlyPlayed(): Promise<SpotifyApi.TrackObjectFull | null> {
+  const Authorization = await getAuthorizationToken();
+  const response = await fetch(`${BASE_URL}${RECENTLY_PLAYED_ENDPOINT}?limit=1`, {
+    headers: { Authorization },
+  });
+  if (response.status !== 200) return null;
+  const data = await response.json() as SpotifyApi.UsersRecentlyPlayedTracksResponse;
+  const track = data.items?.[0]?.track;
+  if (!track) return null;
+
+  // Fetch full track to get album art and preview_url
+  const fullResponse = await fetch(`${BASE_URL}/tracks/${track.id}`, {
+    headers: { Authorization },
+  });
+  if (fullResponse.status !== 200) return null;
+  return fullResponse.json() as Promise<SpotifyApi.TrackObjectFull>;
+}
+
 const TOP_TRACKS_ENDPOINT = `/me/top/tracks`;
 export async function topTrack({ index, timeRange = 'short_term' }: { index: number, timeRange?: 'long_term'|'medium_term'|'short_term' }): Promise<SpotifyApi.TrackObjectFull | null> {
   const Authorization = await getAuthorizationToken();

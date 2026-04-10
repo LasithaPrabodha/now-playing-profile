@@ -3,14 +3,17 @@ import { renderToString } from "react-dom/server";
 import { decode } from "querystring";
 import fetch from "isomorphic-unfetch";
 import { Player } from "../components/NowPlaying";
-import { nowPlaying } from "../utils/spotify";
+import { nowPlaying, recentlyPlayed } from "../utils/spotify";
 
 export default async function (req: VercelRequest, res: VercelResponse) {
   const {
-    item = ({} as any),
+    item: currentItem = ({} as any),
     is_playing: isPlaying = false,
     progress_ms: progress = 0,
   } = await nowPlaying();
+
+  const isLastPlayed = !currentItem?.name;
+  const item = isLastPlayed ? await recentlyPlayed() : currentItem;
 
   const params = decode(req.url?.split("?")[1] ?? "") as any;
 
@@ -25,9 +28,9 @@ export default async function (req: VercelRequest, res: VercelResponse) {
   }
 
   res.setHeader("Content-Type", "image/svg+xml");
-  
-  const { duration_ms: duration, name: track } = item;
-  const { images = [] } = item.album || {};
+
+  const { duration_ms: duration, name: track } = item || {};
+  const { images = [] } = item?.album || {};
 
   const cover = images[images.length - 1]?.url;
   let coverImg = null;
@@ -35,10 +38,10 @@ export default async function (req: VercelRequest, res: VercelResponse) {
     const buff = await (await fetch(cover)).arrayBuffer();
     coverImg = `data:image/jpeg;base64,${Buffer.from(buff).toString("base64")}`;
   }
- 
-  const artist = (item.artists || []).map(({ name }) => name).join(", ");
+
+  const artist = (item?.artists || []).map(({ name }) => name).join(", ");
   const text = renderToString(
-    Player({ cover: coverImg, artist, track, isPlaying, progress, duration })
+    Player({ cover: coverImg, artist, track, isPlaying: !isLastPlayed && isPlaying, progress, duration, isLastPlayed })
   );
   return res.status(200).send(text);
 }
