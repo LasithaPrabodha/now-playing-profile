@@ -6,6 +6,9 @@ import { getItunesPreviewUrl } from "../utils/itunes";
 
 const ALLOWED_THEME_ORIGINS = ["https://www.lasitha.dev", "https://lasitha.dev"];
 
+const FADE_IN_MS = 600;
+const FADE_OUT_LEAD_MS = 800;
+
 const PLAYER_SCRIPT = `
 (function () {
   var audio = document.getElementById("preview-audio");
@@ -14,17 +17,46 @@ const PLAYER_SCRIPT = `
     if (!audio) {
       btn.disabled = true;
     } else {
+      var fadingOut = false;
+
+      function fade(from, to, duration) {
+        var start = null;
+        function step(ts) {
+          if (audio.paused) return;
+          if (start === null) start = ts;
+          var t = Math.min((ts - start) / duration, 1);
+          audio.volume = from + (to - from) * t;
+          if (t < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      }
+
       btn.addEventListener("click", function () {
         if (audio.paused) {
+          fadingOut = false;
+          audio.volume = 0;
           audio.play();
+          fade(0, 1, ${FADE_IN_MS});
           btn.classList.add("playing");
         } else {
           audio.pause();
           btn.classList.remove("playing");
         }
       });
+
+      audio.addEventListener("timeupdate", function () {
+        if (fadingOut || !isFinite(audio.duration)) return;
+        var remainingMs = (audio.duration - audio.currentTime) * 1000;
+        if (remainingMs <= ${FADE_OUT_LEAD_MS}) {
+          fadingOut = true;
+          fade(audio.volume, 0, Math.max(remainingMs, 50));
+        }
+      });
+
       audio.addEventListener("ended", function () {
         btn.classList.remove("playing");
+        fadingOut = false;
+        audio.volume = 1;
       });
     }
   }
