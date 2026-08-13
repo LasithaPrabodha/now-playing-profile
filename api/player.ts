@@ -6,8 +6,8 @@ import { getItunesPreviewUrl } from "../utils/itunes";
 
 const ALLOWED_THEME_ORIGINS = ["https://www.lasitha.dev", "https://lasitha.dev"];
 
-const FADE_IN_MS = 600;
-const FADE_OUT_LEAD_MS = 800;
+const FADE_IN_MS = 1200;
+const FADE_OUT_LEAD_MS = 1600;
 
 const PLAYER_SCRIPT = `
 (function () {
@@ -18,6 +18,7 @@ const PLAYER_SCRIPT = `
       btn.disabled = true;
     } else {
       var fadingOut = false;
+      var fadedIn = false;
 
       function fade(from, to, duration) {
         var start = null;
@@ -34,14 +35,20 @@ const PLAYER_SCRIPT = `
       btn.addEventListener("click", function () {
         if (audio.paused) {
           fadingOut = false;
+          fadedIn = false;
           audio.volume = 0;
           audio.play();
-          fade(0, 1, ${FADE_IN_MS});
           btn.classList.add("playing");
         } else {
           audio.pause();
           btn.classList.remove("playing");
         }
+      });
+
+      audio.addEventListener("playing", function () {
+        if (fadedIn) return;
+        fadedIn = true;
+        fade(0, 1, ${FADE_IN_MS});
       });
 
       audio.addEventListener("timeupdate", function () {
