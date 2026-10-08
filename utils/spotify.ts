@@ -26,24 +26,29 @@ async function getAuthorizationToken() {
     body,
   }).then((r) => r.json());
 
+  if (!response.access_token) {
+    console.error("Spotify token refresh failed:", JSON.stringify(response));
+  }
   return `Bearer ${response.access_token}`;
 }
 
-const NOW_PLAYING_ENDPOINT = `/me/player`;
+const NOW_PLAYING_ENDPOINTS = [`/me/player`, `/me/player/currently-playing`];
 export async function nowPlaying(): Promise<Partial<SpotifyApi.CurrentlyPlayingResponse>> {
   const Authorization = await getAuthorizationToken();
-  const response = await fetch(`${BASE_URL}${NOW_PLAYING_ENDPOINT}`, {
-    headers: {
-      Authorization,
-    },
-  });
-  const { status } = response;
+  for (const endpoint of NOW_PLAYING_ENDPOINTS) {
+    const response = await fetch(`${BASE_URL}${endpoint}?additional_types=track,episode`, {
+      headers: {
+        Authorization,
+      },
+    });
+    const { status } = response;
 
-  if (status === 204) {
-    return {};
-  } else if (status === 200) {
-    const data = await response.json();
-    return data;
+    if (status === 200) {
+      const data = await response.json();
+      if (data?.item) return data;
+    } else if (status !== 204) {
+      console.error(`Spotify ${endpoint} returned ${status}:`, await response.text());
+    }
   }
   return {};
 }
@@ -54,7 +59,10 @@ export async function recentlyPlayed(): Promise<SpotifyApi.TrackObjectFull | nul
   const response = await fetch(`${BASE_URL}${RECENTLY_PLAYED_ENDPOINT}?limit=1`, {
     headers: { Authorization },
   });
-  if (response.status !== 200) return null;
+  if (response.status !== 200) {
+    console.error(`Spotify recently-played returned ${response.status}:`, await response.text());
+    return null;
+  }
   const data = await response.json() as SpotifyApi.UsersRecentlyPlayedTracksResponse;
   const track = data.items?.[0]?.track;
   if (!track) return null;
